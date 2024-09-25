@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .status {
+            background-color: #e7e7e7;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        input[type="number"] {
+            padding: 5px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Water Management System</h1>
+    <p>Enter the number of liters you want to pump into the tank:</p>
+
+    <!-- Input field to enter the amount of water -->
+    <input type="number" id="waterAmount" placeholder="Enter liters" min="1" max="100">
+    <button id="runPump">Run</button>
+
+    <div class="status" id="pumpStatus">
+        <!-- Pump status and water levels will be shown here -->
+    </div>
+
+    <script>
+        // Variables
+        let tankCapacity = 100;  // Integer - total tank capacity in liters
+        let currentWaterLevel = 30;  // Float - initial water level
+        let minWaterLevel = 10;  // Integer - minimum water level for pump to restart
+        let optimalWaterLevel = 90;  // Integer - optimal water level
+        let maxWaterLevel = tankCapacity; // Max tank capacity
+        const waterPump = {
+            manufacturer: "PumpMaster",
+            model: "X1000",
+            flowRate: 5,  // Float - pump flow rate in liters per minute
+            inUse: false  // Boolean - indicates if the pump is in use
+        };
+
+        // Function to increase the water level
+        function pumpWater(currentWaterLevel, amountToPump) {
+            return currentWaterLevel + amountToPump;
+        }
+
+        // Function to update the status display
+        function updatePumpStatus(newWaterLevel) {
+            const pumpStatusDiv = document.getElementById('pumpStatus');
+            let statusText = `<p>Current Water Level: ${newWaterLevel} liters</p>`;
+
+            if (newWaterLevel >= maxWaterLevel) {
+                statusText += `<p>The tank is full. Pumping stopped.</p>`;
+            } else {
+                statusText += `<p>Pumping is complete. Current water level: ${newWaterLevel} liters.</p>`;
+            }
+
+            pumpStatusDiv.innerHTML = statusText;
+        }
+
+        // Handle "Run" button click
+        document.getElementById('runPump').addEventListener('click', function() {
+            const waterAmount = parseInt(document.getElementById('waterAmount').value);
+
+            // Validate input
+            if (isNaN(waterAmount) || waterAmount <= 0) {
+                alert('Please enter a valid amount of water.');
+                return;
+            }
+
+            // Calculate new water level
+            let newWaterLevel = pumpWater(currentWaterLevel, waterAmount);
+
+            // Prevent overfilling the tank
+            if (newWaterLevel > maxWaterLevel) {
+                newWaterLevel = maxWaterLevel;
+            }
+
+            // Update the current water level
+            currentWaterLevel = newWaterLevel;
+
+            // Update the status on the webpage
+            updatePumpStatus(currentWaterLevel);
+        });
+    </script>
+</body>
+</html>
