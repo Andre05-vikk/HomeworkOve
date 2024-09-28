@@ -8,15 +8,12 @@
 - Add or remove water in preset amounts (100L, 200L, 300L, 500L).
 - Visual tank that shows the water level percentage and changes color:
   - Blue: 0-30%
-  - Orange: 40-70%
-  - Red: 70-100%
+  - Orange: 40-80%
+  - Red: 80-100%
 - Emergency Empty Tank** button to reset the water level when overfilled.
 - Warning message with a blinking effect when the tank is overfilled.
 
 4. Instructions:
- - Clone the repository to your local machine:
-   ```bash
-   git clone https://github.com/your-username/your-repo-name.git
  - Open the project in your preferred code editor (such as Visual Studio Code).
  - Open the index.html or your HTML file with the code.
  - You can run this project directly in any modern web browser by double-clicking the HTML file or running it on a local server 
