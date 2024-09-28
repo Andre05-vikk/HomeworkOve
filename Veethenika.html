@@ -19,23 +19,98 @@
             border-radius: 5px;
             margin-top: 20px;
         }
-        input[type="number"] {
-            padding: 5px;
-            margin-right: 10px;
+        .warning {
+            color: red;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+            text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+        }
+        /* Blinking effect for the warning message */
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .blinking {
+            animation: blink 1s infinite;
         }
         button {
-            padding: 5px 10px;
+            padding: 10px 15px;
+            margin-right: 10px;
             cursor: pointer;
         }
+        #emergencyButton {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            display: block;
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+        /* Tank visual representation */
+        .tank-container {
+            background-color: #ddd;
+            border: 2px solid #333;
+            width: 300px;
+            height: 400px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden; /* Ensure the water doesn't overflow the container */
+        }
+        .tank-level {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            transition: height 0.3s ease; /* Smooth transition for visual */
+        }
+        /* Different tank colors */
+        .blue { background-color: blue; }
+        .orange { background-color: orange; }
+        .red { background-color: red; }
     </style>
 </head>
 <body>
     <h1>Water Management System</h1>
-    <p>Enter the number of liters you want to pump into the tank:</p>
 
-    <!-- Input field to enter the amount of water -->
-    <input type="number" id="waterAmount" placeholder="Enter liters" min="1" max="100">
-    <button id="runPump">Run</button>
+    <!-- Water amount buttons for adding -->
+    <p>Select the amount of liters to <b>pump in</b>:</p>
+    <button id="add100L">Add 100 Liters</button>
+    <button id="add200L">Add 200 Liters</button>
+    <button id="add300L">Add 300 Liters</button>
+    <button id="add500L">Add 500 Liters</button>
+
+    <!-- Water amount buttons for decreasing -->
+    <p>Select the amount of liters to <b>decrease</b>:</p>
+    <button id="decrease100L">Decrease 100 Liters</button>
+    <button id="decrease200L">Decrease 200 Liters</button>
+    <button id="decrease300L">Decrease 300 Liters</button>
+    <button id="decrease500L">Decrease 500 Liters</button>
+
+    <!-- Emergency button to empty the tank -->
+    <p>
+        <button id="emergencyButton">Emergency: Empty Tank</button>
+    </p>
+
+    <!-- Warning message for overfilled tank -->
+    <p id="warningMessage" class="warning blinking">WARNING: The tank is overfilled! Please use the Emergency button to empty the tank.</p>
+
+    <!-- Visual representation of the tank -->
+    <div class="tank-container">
+        <div id="tankLevel" class="tank-level blue" style="height: 0%;">0%</div>
+    </div>
 
     <div class="status" id="pumpStatus">
         <!-- Pump status and water levels will be shown here -->
@@ -43,61 +118,130 @@
 
     <script>
         // Variables
-        let tankCapacity = 100;  // Integer - total tank capacity in liters
-        let currentWaterLevel = 30;  // Float - initial water level
-        let minWaterLevel = 10;  // Integer - minimum water level for pump to restart
-        let optimalWaterLevel = 90;  // Integer - optimal water level
+        let tankCapacity = 1000;  // Total tank capacity in liters
+        let currentWaterLevel = 0;  // Initial water level
         let maxWaterLevel = tankCapacity; // Max tank capacity
-        const waterPump = {
-            manufacturer: "PumpMaster",
-            model: "X1000",
-            flowRate: 5,  // Float - pump flow rate in liters per minute
-            inUse: false  // Boolean - indicates if the pump is in use
-        };
 
         // Function to increase the water level
         function pumpWater(currentWaterLevel, amountToPump) {
             return currentWaterLevel + amountToPump;
         }
 
-        // Function to update the status display
+        // Function to decrease the water level
+        function useWater(currentWaterLevel, amountToUse) {
+            return currentWaterLevel - amountToUse;
+        }
+
+        // Function to empty the tank (sets water level to 0)
+        function emptyTank() {
+            currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        }
+
+        // Function to show or hide the warning message for overfilled tank
+        function toggleWarningMessage(show) {
+            const warningMessage = document.getElementById('warningMessage');
+            if (show) {
+                warningMessage.style.display = 'block'; // Show warning
+            } else {
+                warningMessage.style.display = 'none'; // Hide warning
+            }
+        }
+
+        // Function to update the tank visual and status display
         function updatePumpStatus(newWaterLevel) {
             const pumpStatusDiv = document.getElementById('pumpStatus');
+            const tankLevelDiv = document.getElementById('tankLevel');
             let statusText = `<p>Current Water Level: ${newWaterLevel} liters</p>`;
 
-            if (newWaterLevel >= maxWaterLevel) {
-                statusText += `<p>The tank is full. Pumping stopped.</p>`;
+            // Calculate percentage of tank capacity
+            let percentageFilled = (newWaterLevel / maxWaterLevel) * 100;
+            if (percentageFilled > 110) {
+                percentageFilled = 110; // Cap the percentage at 110%
+            }
+            tankLevelDiv.style.height = `${percentageFilled}%`;
+            tankLevelDiv.textContent = `${Math.round(percentageFilled)}%`;
+
+            // Change tank color based on percentage
+            if (percentageFilled <= 30) {
+                tankLevelDiv.classList.remove('orange', 'red');
+                tankLevelDiv.classList.add('blue');
+            } else if (percentageFilled > 30 && percentageFilled <= 70) {
+                tankLevelDiv.classList.remove('blue', 'red');
+                tankLevelDiv.classList.add('orange');
+            } else if (percentageFilled > 70) {
+                tankLevelDiv.classList.remove('blue', 'orange');
+                tankLevelDiv.classList.add('red');
+            }
+
+            if (newWaterLevel <= 0) {
+                statusText += `<p>The tank is empty.</p>`;
+                toggleWarningMessage(false); // Hide warning if tank is empty
+            } else if (newWaterLevel > maxWaterLevel) {
+                statusText += `<p>The tank is overfilled! Pumping stopped.</p>`;
+                toggleWarningMessage(true);  // Show the warning message when overfilled
             } else {
-                statusText += `<p>Pumping is complete. Current water level: ${newWaterLevel} liters.</p>`;
+                statusText += `<p>Pumping complete. Current water level: ${newWaterLevel} liters.</p>`;
+                toggleWarningMessage(false); // Hide warning message
             }
 
             pumpStatusDiv.innerHTML = statusText;
         }
 
-        // Handle "Run" button click
-        document.getElementById('runPump').addEventListener('click', function() {
-            const waterAmount = parseInt(document.getElementById('waterAmount').value);
-
-            // Validate input
-            if (isNaN(waterAmount) || waterAmount <= 0) {
-                alert('Please enter a valid amount of water.');
-                return;
-            }
-
-            // Calculate new water level
-            let newWaterLevel = pumpWater(currentWaterLevel, waterAmount);
-
-            // Prevent overfilling the tank
-            if (newWaterLevel > maxWaterLevel) {
-                newWaterLevel = maxWaterLevel;
-            }
-
-            // Update the current water level
-            currentWaterLevel = newWaterLevel;
-
-            // Update the status on the webpage
+        // Handle button clicks for adding preset amounts
+        document.getElementById('add100L').addEventListener('click', function() {
+            currentWaterLevel = pumpWater(currentWaterLevel, 100);
             updatePumpStatus(currentWaterLevel);
         });
+
+        document.getElementById('add200L').addEventListener('click', function() {
+            currentWaterLevel = pumpWater(currentWaterLevel, 200);
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('add300L').addEventListener('click', function() {
+            currentWaterLevel = pumpWater(currentWaterLevel, 300);
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('add500L').addEventListener('click', function() {
+            currentWaterLevel = pumpWater(currentWaterLevel, 500);
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        // Handle button clicks for decreasing preset amounts
+        document.getElementById('decrease100L').addEventListener('click', function() {
+            currentWaterLevel = useWater(currentWaterLevel, 100);
+            if (currentWaterLevel < 0) currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('decrease200L').addEventListener('click', function() {
+            currentWaterLevel = useWater(currentWaterLevel, 200);
+            if (currentWaterLevel < 0) currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('decrease300L').addEventListener('click', function() {
+            currentWaterLevel = useWater(currentWaterLevel, 300);
+            if (currentWaterLevel < 0) currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('decrease500L').addEventListener('click', function() {
+            currentWaterLevel = useWater(currentWaterLevel, 500);
+            if (currentWaterLevel < 0) currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        // Handle "Emergency: Empty Tank" button click
+        document.getElementById('emergencyButton').addEventListener('click', function() {
+            emptyTank();
+        });
+
+        // Initial display of water level
+        updatePumpStatus(currentWaterLevel);
     </script>
 </body>
 </html>
+
