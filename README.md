@@ -27,4 +27,4 @@
  - Visual Feedback: The water level is displayed in the tank, and the color changes based on the current percentage.
 
 6. Where you can run project:
- - Google Chrome 
+ - https://ovekre.github.io/Homework/
