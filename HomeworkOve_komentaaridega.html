@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Metaandmed lehe kodeeringu ja vaateakna seadistuste kohta -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Management System</title>
+
+    <style>
+        /* Lehe üldine stiil ja välimus */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+        }
+
+        /* Pealkirja stiilid */
+        h1 {
+            color: #333;
+        }
+
+        /* Veetaseme staatuse kasti stiil */
+        .status {
+            background-color: #e7e7e7;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        /* Hoiatusteade, mida kuvatakse üle täitumisel */
+        .warning {
+            color: red;
+            font-weight: bold;
+            display: none; /* Alguses peidetud */
+            text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+        }
+
+        /* Hoiatuse vilkuv efekt */
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .blinking {
+            animation: blink 1s infinite;
+        }
+
+        /* Nupud veetaseme muutmiseks */
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        /* Hädaolukorra nupp */
+        #emergencyButton {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            display: block;
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+
+        /* Vee mahuti visuaalne kujutamine */
+        .tank-container {
+            background-color: #ddd;
+            border: 2px solid #333;
+            width: 300px;
+            height: 400px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden; /* Vee taseme korrektne kuvamine */
+        }
+
+        /* Vee taseme kast */
+        .tank-level {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            transition: height 0.3s ease; /* Sujuv üleminek */
+        }
+
+        /* Erinevad veetaseme värvid */
+        .blue { background-color: blue; }
+        .orange { background-color: orange; }
+        .red { background-color: red; }
+    </style>
+</head>
+<body>
+    <!-- Pealkiri -->
+    <h1>Water Management System</h1>
+
+    <!-- Nupud vee lisamiseks -->
+    <p>Vali palju liitreid <b>pumbata sisse</b>:</p>
+    <button id="add100L">Lisa 100 liitrit</button>
+    <button id="add200L">Lisa 200 liitrit</button>
+    <button id="add300L">Lisa 300 liitrit</button>
+    <button id="add500L">Lisa 500 liitrit</button>
+
+    <!-- Nupud vee vähendamiseks -->
+    <p>Vali palju liitreid <b>vähendada</b>:</p>
+    <button id="decrease100L">Vähenda 100 liitrit</button>
+    <button id="decrease200L">Vähenda 200 liitrit</button>
+    <button id="decrease300L">Vähenda 300 liitrit</button>
+    <button id="decrease500L">Vähenda 500 liitrit</button>
+
+    <!-- Hädaolukorra nupp vee tühjendamiseks -->
+    <p>
+        <button id="emergencyButton">Hädaolukord: Tühjenda mahuti</button>
+    </p>
+
+    <!-- Hoiatusteade ületäitumise korral -->
+    <p id="warningMessage" class="warning blinking">HOIATUS: Mahuti on ületäitunud! Palun kasuta hädaolukorra nuppu mahuti tühjendamiseks.</p>
+
+    <!-- Vee mahuti visuaalne kujutamine -->
+    <div class="tank-container">
+        <div id="tankLevel" class="tank-level blue" style="height: 0%;">0%</div>
+    </div>
+
+    <div class="status" id="pumpStatus">
+        <!-- Pumpamise staatus kuvatakse siin -->
+    </div>
+
+    <script>
+        // Muutujad
+        let tankCapacity = 1000;  // Mahuti kogumaht liitrites
+        let currentWaterLevel = 0;  // Algne veetase
+        let maxWaterLevel = tankCapacity; // Maksimaalne veetase
+
+        // Funktsioon vee lisamiseks
+        function pumpWater(currentWaterLevel, amountToPump) {
+            return currentWaterLevel + amountToPump;
+        }
+
+        // Funktsioon vee vähendamiseks
+        function useWater(currentWaterLevel, amountToUse) {
+            return currentWaterLevel - amountToUse;
+        }
+
+        // Funktsioon mahuti tühjendamiseks
+        function emptyTank() {
+            currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        }
+
+        // Funktsioon hoiatusteate näitamiseks või peitmiseks
+        function toggleWarningMessage(show) {
+            const warningMessage = document.getElementById('warningMessage');
+            if (show) {
+                warningMessage.style.display = 'block'; // Näita hoiatust
+            } else {
+                warningMessage.style.display = 'none'; // Peida hoiatus
+            }
+        }
+
+        // Funktsioon veetaseme ja oleku uuendamiseks
+        function updatePumpStatus(newWaterLevel) {
+            const pumpStatusDiv = document.getElementById('pumpStatus');
+            const tankLevelDiv = document.getElementById('tankLevel');
+            let statusText = `<p>Praegune veetase: ${newWaterLevel} liitrit</p>`;
+
+            // Arvuta täitumisprotsent
+            let percentageFilled = (newWaterLevel / maxWaterLevel) * 100;
+            if (percentageFilled > 110) {
+                percentageFilled = 110; // Maksimaalne näit 110%
+            }
+            tankLevelDiv.style.height = `${percentageFilled}%`;
+            tankLevelDiv.textContent = `${Math.round(percentageFilled)}%`;
+
+            // Muuda mahuti värvi täitumise protsendi järgi
+            if (percentageFilled <= 30) {
+                tankLevelDiv.classList.remove('orange', 'red');
+                tankLevelDiv.classList.add('blue');
+            } else if (percentageFilled > 30 && percentageFilled <= 70) {
+                tankLevelDiv.classList.remove('blue', 'red');
+                tankLevelDiv.classList.add('orange');
+            } else if (percentageFilled > 70) {
+                tankLevelDiv.classList.remove('blue', 'orange');
+                tankLevelDiv.classList.add('red');
+            }
+
+            // Kontrolli, kas mahuti on tühi või täis
+            if (newWaterLevel <= 0) {
+                statusText += `<p>Mahuti on tühi.</p>`;
+                toggleWarningMessage(false); // Peida hoiatus, kui tühi
+            } else if (newWaterLevel > maxWaterLevel) {
+                statusText += `<p>Mahuti on ületäitunud! Pumpamine peatatud.</p>`;
+                toggleWarningMessage(true);  // Näita hoiatust ületäitumisel
+            } else {
+                statusText += `<p>Pumpamine lõpetatud. Praegune veetase: ${newWaterLevel} liitrit.</p>`;
+                toggleWarningMessage(false); // Peida hoiatus
+            }
+
+            pumpStatusDiv.innerHTML = statusText;
+        }
+
+        // Nuppude klikkimise sündmused vee lisamiseks
+        document.getElementById('add100L').addEventListener('click', function() {
+            currentWaterLevel = pumpWater(currentWaterLevel, 100);
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('add200L').addEventListener('click', function() {
+            currentWaterLevel = pumpWater(currentWaterLevel, 200);
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('add300L').addEventListener('click', function() {
+            currentWaterLevel = pumpWater(currentWaterLevel, 300);
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('add500L').addEventListener('click', function() {
+            currentWaterLevel = pumpWater(currentWaterLevel, 500);
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        // Nuppude klikkimise sündmused vee vähendamiseks
+        document.getElementById('decrease100L').addEventListener('click', function() {
+            currentWaterLevel = useWater(currentWaterLevel, 100);
+            if (currentWaterLevel < 0) currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('decrease200L').addEventListener('click', function() {
+            currentWaterLevel = useWater(currentWaterLevel, 200);
+            if (currentWaterLevel < 0) currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('decrease300L').addEventListener('click', function() {
+            currentWaterLevel = useWater(currentWaterLevel, 300);
+            if (currentWaterLevel < 0) currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        document.getElementById('decrease500L').addEventListener('click', function() {
+            currentWaterLevel = useWater(currentWaterLevel, 500);
+            if (currentWaterLevel < 0) currentWaterLevel = 0;
+            updatePumpStatus(currentWaterLevel);
+        });
+
+        // Hädaolukorra nupu sündmus mahuti tühjendamiseks
+        document.getElementById('emergencyButton').addEventListener('click', function() {
+            emptyTank();
+        });
+
+        // Esialgne veetaseme kuvamine
+        updatePumpStatus(currentWaterLevel);
+    </script>
+</body>
+</html>
