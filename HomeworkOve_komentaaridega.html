@@ -1,104 +1,108 @@
+
 <!DOCTYPE html>
+<!-- Määrab dokumendi tüübi kui HTML5 -->
 <html lang="en">
 <head>
     <!-- Metaandmed lehe kodeeringu ja vaateakna seadistuste kohta -->
     <meta charset="UTF-8">
+    <!-- Määrab lehe kodeeringu UTF-8, mis toetab kõiki märke ja sümboleid -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Metaandmed mobiilseadmetele optimeeritud vaatamiseks, määrab lehe laiuse seadme ekraanilaiuse järgi -->
     <title>Water Management System</title>
+    <!-- Lehe pealkiri, mis kuvatakse brauseri vahekaardi pealkirjas -->
 
     <style>
         /* Lehe üldine stiil ja välimus */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 20px;
+            font-family: Arial, sans-serif; /* Määrab lehe vaikimisi fondi */
+            background-color: #f4f4f4; /* Lehe taustavärv */
+            margin: 20px; /* Vahe lehe sisu ja brauseri akna servade vahel */
         }
 
         /* Pealkirja stiilid */
         h1 {
-            color: #333;
+            color: #333; /* Pealkirja värv */
         }
 
         /* Veetaseme staatuse kasti stiil */
         .status {
-            background-color: #e7e7e7;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 20px;
+            background-color: #e7e7e7; /* Taustavärv */
+            padding: 10px; /* Sisemine vahe ümber teksti */
+            border-radius: 5px; /* Nurkade raadius, et need oleksid ümarad */
+            margin-top: 20px; /* Ülemine vahe teiste elementidega */
         }
 
         /* Hoiatusteade, mida kuvatakse üle täitumisel */
         .warning {
-            color: red;
-            font-weight: bold;
-            display: none; /* Alguses peidetud */
-            text-align: center;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
+            color: red; /* Teksti värv */
+            font-weight: bold; /* Teksti paksus */
+            display: none; /* Alguses peidetud, kuvatakse vajadusel */
+            text-align: center; /* Teksti joondamine keskele */
+            position: fixed; /* Positsioon kindlalt lehe keskel */
+            top: 50%; /* Vertikaalne asend */
+            left: 50%; /* Horisontaalne asend */
+            transform: translate(-50%, -50%); /* Nihutab elemendi täpselt keskele */
+            font-size: 24px; /* Fondi suurus */
         }
 
         /* Hoiatuse vilkuv efekt */
         @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
+            0%, 100% { opacity: 1; } /* Nähtavus 100% alguses ja lõpus */
+            50% { opacity: 0; } /* Nähtamatu keskel */
         }
 
         .blinking {
-            animation: blink 1s infinite;
+            animation: blink 1s infinite; /* Vilkumise animatsioon, kordub lõputult */
         }
 
         /* Nupud veetaseme muutmiseks */
         button {
-            padding: 10px 15px;
-            margin-right: 10px;
-            cursor: pointer;
+            padding: 10px 15px; /* Nuppude sisemine vahe */
+            margin-right: 10px; /* Vahe paremal pool nuppe */
+            cursor: pointer; /* Kursor muutub näpukujuliseks nuppude peale minnes */
         }
 
         /* Hädaolukorra nupp */
         #emergencyButton {
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 10px;
-            margin-top: 10px;
-            cursor: pointer;
-            display: block;
-            width: 200px;
-            margin-left: auto;
-            margin-right: auto;
-            text-align: center;
+            background-color: red; /* Nupu taustavärv */
+            color: white; /* Teksti värv */
+            border: none; /* Äär puudub */
+            padding: 10px; /* Sisemine vahe */
+            margin-top: 10px; /* Ülemine vahe */
+            cursor: pointer; /* Kursor muutub näpukujuliseks */
+            display: block; /* Nupp kuvatakse plokielemendina */
+            width: 200px; /* Nupu laius */
+            margin-left: auto; /* Horisontaalne joondamine keskele */
+            margin-right: auto; /* Horisontaalne joondamine keskele */
+            text-align: center; /* Teksti joondamine keskele */
         }
 
         /* Vee mahuti visuaalne kujutamine */
         .tank-container {
-            background-color: #ddd;
-            border: 2px solid #333;
-            width: 300px;
-            height: 400px;
-            margin-top: 20px;
-            position: relative;
-            overflow: hidden; /* Vee taseme korrektne kuvamine */
+            background-color: #ddd; /* Taustavärv */
+            border: 2px solid #333; /* Ääris tumehalli värvi */
+            width: 300px; /* Konteineri laius */
+            height: 400px; /* Konteineri kõrgus */
+            margin-top: 20px; /* Ülemine vahe */
+            position: relative; /* Suhteline asend, võimaldab absoluutset positsioneerimist */
+            overflow: hidden; /* Peidab sisu, mis ulatub konteinerist välja */
         }
 
         /* Vee taseme kast */
         .tank-level {
-            width: 100%;
-            position: absolute;
-            bottom: 0;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            transition: height 0.3s ease; /* Sujuv üleminek */
+            width: 100%; /* Laius täidab kogu konteineri laiuse */
+            position:absolute; /* Absoluutne asend suhtes konteineri */
+            bottom: 0; /* Asukoht konteineri põhjas */
+            text-align: center; /* Teksti joondamine keskele */
+            color: white; /* Teksti värv */
+            font-weight: bold; /* Teksti paksus */
+            transition: height 0.3s ease; /* Kõrguse muutumise animatsioon */
         }
 
         /* Erinevad veetaseme värvid */
-        .blue { background-color: blue; }
-        .orange { background-color: orange; }
-        .red { background-color: red; }
+        .blue { background-color: blue; } /* Sinine taust */
+        .orange { background-color: orange; } /* Oranž taust */
+        .red { background-color: red; } /* Punane taust */
     </style>
 </head>
 <body>
@@ -144,18 +148,18 @@
 
         // Funktsioon vee lisamiseks
         function pumpWater(currentWaterLevel, amountToPump) {
-            return currentWaterLevel + amountToPump;
+            return currentWaterLevel + amountToPump; // Tagastab uue veetaseme, lisades sellele määratud koguse
         }
 
         // Funktsioon vee vähendamiseks
         function useWater(currentWaterLevel, amountToUse) {
-            return currentWaterLevel - amountToUse;
+            return currentWaterLevel - amountToUse; // Vähendab veetaset määratud koguse võrra
         }
 
         // Funktsioon mahuti tühjendamiseks
         function emptyTank() {
-            currentWaterLevel = 0;
-            updatePumpStatus(currentWaterLevel);
+            currentWaterLevel = 0; // Seab veetaseme nulliks
+            updatePumpStatus(currentWaterLevel); // Uuendab pumpamise olekut
         }
 
         // Funktsioon hoiatusteate näitamiseks või peitmiseks
@@ -233,7 +237,7 @@
         // Nuppude klikkimise sündmused vee vähendamiseks
         document.getElementById('decrease100L').addEventListener('click', function() {
             currentWaterLevel = useWater(currentWaterLevel, 100);
-            if (currentWaterLevel < 0) currentWaterLevel = 0;
+            if (currentWaterLevel < 0) currentWaterLevel = 0; // Korrigeerib veetaseme nulliks, kui see läheb negatiivseks
             updatePumpStatus(currentWaterLevel);
         });
 
@@ -257,11 +261,11 @@
 
         // Hädaolukorra nupu sündmus mahuti tühjendamiseks
         document.getElementById('emergencyButton').addEventListener('click', function() {
-            emptyTank();
+            emptyTank(); // Käivitab funktsiooni, mis tühjendab mahuti
         });
 
         // Esialgne veetaseme kuvamine
-        updatePumpStatus(currentWaterLevel);
+        updatePumpStatus(currentWaterLevel); // Uuendab esmakordselt lehe laadimisel veetaseme olekut
     </script>
 </body>
 </html>
