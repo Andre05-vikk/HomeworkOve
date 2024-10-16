@@ -174,98 +174,99 @@
 
         // Funktsioon veetaseme ja oleku uuendamiseks
         function updatePumpStatus(newWaterLevel) {
-            const pumpStatusDiv = document.getElementById('pumpStatus');
-            const tankLevelDiv = document.getElementById('tankLevel');
-            let statusText = `<p>Praegune veetase: ${newWaterLevel} liitrit</p>`;
-
+            const pumpStatusDiv = document.getElementById('pumpStatus'); // Leiab HTML-st pumpamise oleku kuvamise elemendi
+            const tankLevelDiv = document.getElementById('tankLevel'); // Leiab mahuti veetaseme kuvamise elemendi
+            let statusText = `<p>Praegune veetase: ${newWaterLevel} liitrit</p>`; // Loob stringi praeguse veetaseme kuvamiseks
+        
             // Arvuta täitumisprotsent
-            let percentageFilled = (newWaterLevel / maxWaterLevel) * 100;
+            let percentageFilled = (newWaterLevel / maxWaterLevel) * 100; // Arvutab, mitu protsenti mahutist on täidetud
             if (percentageFilled > 110) {
-                percentageFilled = 110; // Maksimaalne näit 110%
+                percentageFilled = 110; // Piirab kuvatava täitumisprotsendi maksimaalselt 110%-ni
             }
-            tankLevelDiv.style.height = `${percentageFilled}%`;
-            tankLevelDiv.textContent = `${Math.round(percentageFilled)}%`;
-
+            tankLevelDiv.style.height = `${percentageFilled}%`; // Muudab veetaseme visuaali vastavalt täitumisprotsendile
+            tankLevelDiv.textContent = `${Math.round(percentageFilled)}%`; // Kuvab veetaseme protsendi
+        
             // Muuda mahuti värvi täitumise protsendi järgi
             if (percentageFilled <= 30) {
-                tankLevelDiv.classList.remove('orange', 'red');
-                tankLevelDiv.classList.add('blue');
+                tankLevelDiv.classList.remove('orange', 'red'); // Eemaldab teised värvid
+                tankLevelDiv.classList.add('blue'); // Lisab sinise värvi
             } else if (percentageFilled > 30 && percentageFilled <= 70) {
-                tankLevelDiv.classList.remove('blue', 'red');
-                tankLevelDiv.classList.add('orange');
+                tankLevelDiv.classList.remove('blue', 'red'); // Eemaldab teised värvid
+                tankLevelDiv.classList.add('orange'); // Lisab oranži värvi
             } else if (percentageFilled > 70) {
-                tankLevelDiv.classList.remove('blue', 'orange');
-                tankLevelDiv.classList.add('red');
+                tankLevelDiv.classList.remove('blue', 'orange'); // Eemaldab teised värvid
+                tankLevelDiv.classList.add('red'); // Lisab punase värvi
             }
-
+        
             // Kontrolli, kas mahuti on tühi või täis
             if (newWaterLevel <= 0) {
-                statusText += `<p>Mahuti on tühi.</p>`;
-                toggleWarningMessage(false); // Peida hoiatus, kui tühi
+                statusText += `<p>Mahuti on tühi.</p>`; // Lisab teksti, et mahuti on tühi
+                toggleWarningMessage(false); // Peida hoiatusteade
             } else if (newWaterLevel > maxWaterLevel) {
-                statusText += `<p>Mahuti on ületäitunud! Pumpamine peatatud.</p>`;
-                toggleWarningMessage(true);  // Näita hoiatust ületäitumisel
+                statusText += `<p>Mahuti on ületäitunud! Pumpamine peatatud.</p>`; // Lisab teksti, et mahuti on ületäitunud
+                toggleWarningMessage(true); // Näita hoiatusteadet
             } else {
-                statusText += `<p>Pumpamine lõpetatud. Praegune veetase: ${newWaterLevel} liitrit.</p>`;
-                toggleWarningMessage(false); // Peida hoiatus
+                statusText += `<p>Pumpamine lõpetatud. Praegune veetase: ${newWaterLevel} liitrit.</p>`; // Lisab teksti, et pumpamine on lõpetatud
+                toggleWarningMessage(false); // Peida hoiatusteade
             }
-
-            pumpStatusDiv.innerHTML = statusText;
+        
+            pumpStatusDiv.innerHTML = statusText; // Uuendab olekuteksti lehel
         }
-
+        
         // Nuppude klikkimise sündmused vee lisamiseks
         document.getElementById('add100L').addEventListener('click', function() {
-            currentWaterLevel = pumpWater(currentWaterLevel, 100);
-            updatePumpStatus(currentWaterLevel);
+            currentWaterLevel = pumpWater(currentWaterLevel, 100); // Lisab mahutisse 100 liitrit
+            updatePumpStatus(currentWaterLevel); // Uuendab veetaseme olekut
         });
-
+        
         document.getElementById('add200L').addEventListener('click', function() {
-            currentWaterLevel = pumpWater(currentWaterLevel, 200);
-            updatePumpStatus(currentWaterLevel);
+            currentWaterLevel = pumpWater(currentWaterLevel, 200); // Lisab mahutisse 200 liitrit
+            updatePumpStatus(currentWaterLevel); // Uuendab veetaseme olekut
         });
-
+        
         document.getElementById('add300L').addEventListener('click', function() {
-            currentWaterLevel = pumpWater(currentWaterLevel, 300);
-            updatePumpStatus(currentWaterLevel);
+            currentWaterLevel = pumpWater(currentWaterLevel, 300); // Lisab mahutisse 300 liitrit
+            updatePumpStatus(currentWaterLevel); // Uuendab veetaseme olekut
         });
-
+        
         document.getElementById('add500L').addEventListener('click', function() {
-            currentWaterLevel = pumpWater(currentWaterLevel, 500);
-            updatePumpStatus(currentWaterLevel);
+            currentWaterLevel = pumpWater(currentWaterLevel, 500); // Lisab mahutisse 500 liitrit
+            updatePumpStatus(currentWaterLevel); // Uuendab veetaseme olekut
         });
-
+        
         // Nuppude klikkimise sündmused vee vähendamiseks
         document.getElementById('decrease100L').addEventListener('click', function() {
-            currentWaterLevel = useWater(currentWaterLevel, 100);
-            if (currentWaterLevel < 0) currentWaterLevel = 0; // Korrigeerib veetaseme nulliks, kui see läheb negatiivseks
-            updatePumpStatus(currentWaterLevel);
+            currentWaterLevel = useWater(currentWaterLevel, 100); // Vähendab mahutist 100 liitrit
+            if (currentWaterLevel < 0) currentWaterLevel = 0; // Tagab, et veetase ei langeks alla nulli
+            updatePumpStatus(currentWaterLevel); // Uuendab veetaseme olekut
         });
-
+        
         document.getElementById('decrease200L').addEventListener('click', function() {
-            currentWaterLevel = useWater(currentWaterLevel, 200);
-            if (currentWaterLevel < 0) currentWaterLevel = 0;
-            updatePumpStatus(currentWaterLevel);
+            currentWaterLevel = useWater(currentWaterLevel, 200); // Vähendab mahutist 200 liitrit
+            if (currentWaterLevel < 0) currentWaterLevel = 0; // Tagab, et veetase ei langeks alla nulli
+            updatePumpStatus(currentWaterLevel); // Uuendab veetaseme olekut
         });
-
+        
         document.getElementById('decrease300L').addEventListener('click', function() {
-            currentWaterLevel = useWater(currentWaterLevel, 300);
-            if (currentWaterLevel < 0) currentWaterLevel = 0;
-            updatePumpStatus(currentWaterLevel);
+            currentWaterLevel = useWater(currentWaterLevel, 300); // Vähendab mahutist 300 liitrit
+            if (currentWaterLevel < 0) currentWaterLevel = 0; // Tagab, et veetase ei langeks alla nulli
+            updatePumpStatus(currentWaterLevel); // Uuendab veetaseme olekut
         });
-
+        
         document.getElementById('decrease500L').addEventListener('click', function() {
-            currentWaterLevel = useWater(currentWaterLevel, 500);
-            if (currentWaterLevel < 0) currentWaterLevel = 0;
-            updatePumpStatus(currentWaterLevel);
+            currentWaterLevel = useWater(currentWaterLevel, 500); // Vähendab mahutist 500 liitrit
+            if (currentWaterLevel < 0) currentWaterLevel = 0; // Tagab, et veetase ei langeks alla nulli
+            updatePumpStatus(currentWaterLevel); // Uuendab veetaseme olekut
         });
-
+        
         // Hädaolukorra nupu sündmus mahuti tühjendamiseks
         document.getElementById('emergencyButton').addEventListener('click', function() {
-            emptyTank(); // Käivitab funktsiooni, mis tühjendab mahuti
+            emptyTank(); // Tühjendab mahuti täielikult
         });
-
+        
         // Esialgne veetaseme kuvamine
-        updatePumpStatus(currentWaterLevel); // Uuendab esmakordselt lehe laadimisel veetaseme olekut
+        updatePumpStatus(currentWaterLevel); // Kuvab esialgse veetaseme lehe laadimisel
+
     </script>
 </body>
 </html>
